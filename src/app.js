@@ -4,10 +4,8 @@ const helmet = require('helmet');
 const compression = require('compression');
 const morgan = require('morgan');
 const rateLimit = require('express-rate-limit');
-const mongoSanitize = require('express-mongo-sanitize');
 const xss = require('xss-clean');
 const hpp = require('hpp');
-const mongoose = require('mongoose');
 const routes = require('./routes');
 const errorHandler = require('./middleware/error.middleware');
 const logger = require('./utils/logger');
@@ -30,9 +28,6 @@ app.use('/api/', limiter);
 app.use(express.json({ limit: '10kb' }));
 app.use(express.urlencoded({ extended: true, limit: '10kb' }));
 
-// Data Sanitization against NoSQL Injection
-app.use(mongoSanitize());
-
 // Data Sanitization against XSS
 app.use(xss());
 
@@ -41,25 +36,6 @@ app.use(hpp());
 
 app.use(compression());
 app.use(morgan('combined', { stream: { write: message => logger.info(message.trim()) } }));
-
-// Health Check
-app.get('/health', (req, res) => {
-  const dbStatus = mongoose.connection.readyState;
-  const statusMap = {
-    0: 'disconnected',
-    1: 'connected',
-    2: 'connecting',
-    3: 'disconnecting'
-  };
-
-  res.status(200).json({
-    status: 'online',
-    server: 'running',
-    database: statusMap[dbStatus] || 'unknown',
-    timestamp: new Date(),
-    uptime: process.uptime()
-  });
-});
 
 // API Routes
 app.use('/api', routes);

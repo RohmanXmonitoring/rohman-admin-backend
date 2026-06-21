@@ -1,5 +1,5 @@
-const Notification = require('../models/Notification');
-const admin = require('firebase-admin');
+const { Notification, User } = require('../models');
+const { admin } = require('../config/firebase');
 const { success, error } = require('../utils/response');
 
 exports.getNotifications = async (req, res) => {
@@ -15,15 +15,13 @@ exports.sendNotification = async (req, res) => {
   try {
     const { title, message, target, targetId } = req.body;
 
-    const notification = new Notification({
+    const notification = await Notification.create({
       title,
       message,
       target,
       targetId,
       senderId: req.user.userId
     });
-
-    await notification.save();
 
     // Logic to send via FCM
     try {
@@ -38,7 +36,7 @@ exports.sendNotification = async (req, res) => {
         },
         data: {
           type: 'ADMIN_NOTIFICATION',
-          notificationId: notification._id.toString()
+          notificationId: notification.id.toString()
         }
       };
 
@@ -48,15 +46,15 @@ exports.sendNotification = async (req, res) => {
         fcmMessage.topic = `role_${targetId.toLowerCase()}`;
       } else if (target === 'USER') {
         // Find user to get their fcmToken
-        const user = await User.findById(targetId);
+        const user = await User.findById(targetId).exec();
         if (user && user.fcmToken) {
           fcmMessage.token = user.fcmToken;
         } else {
-          throw new Error('User not found or has no FCM token');
+          console.warn('User not found or has no FCM token for targetId:', targetId);
         }
       }
 
-      if (fcmMessage.topic || fcmMessage.token) {
+      if (admin.apps.length > 0 && (fcmMessage.topic || fcmMessage.token)) {
         await admin.messaging().send(fcmMessage);
         console.log('FCM Notification sent successfully');
       }

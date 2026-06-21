@@ -1,9 +1,9 @@
-const mongoose = require('mongoose');
+const BaseModel = require('./BaseModel');
 
-const permissionSchema = new mongoose.Schema({
-  name: { type: String, required: true, unique: true },
-  slug: { type: String, required: true, unique: true }, // e.g., 'manage_users'
-  description: String
-}, { timestamps: true });
+class Permission extends BaseModel {
+  constructor() {
+    super('permissions');
+  }
+}
 
-module.exports = mongoose.model('Permission', permissionSchema);
+module.exports = new Permission();

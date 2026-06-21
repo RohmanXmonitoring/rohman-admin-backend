@@ -16,4 +16,6 @@ if (serviceAccount.projectId && serviceAccount.clientEmail && serviceAccount.pri
   logger.warn('Firebase Admin SDK not initialized: Missing environment variables');
 }
 
-module.exports = admin;
+const db = admin.apps.length > 0 ? admin.firestore() : null;
+
+module.exports = { admin, db };

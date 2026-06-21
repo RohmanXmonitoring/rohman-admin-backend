@@ -1,11 +1,9 @@
-const mongoose = require('mongoose');
+const BaseModel = require('./BaseModel');
 
-const sessionSchema = new mongoose.Schema({
-  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-  refreshToken: { type: String, required: true },
-  isValid: { type: Boolean, default: true },
-  ipAddress: String,
-  userAgent: String
-}, { timestamps: true });
+class Session extends BaseModel {
+  constructor() {
+    super('sessions');
+  }
+}
 
-module.exports = mongoose.model('Session', sessionSchema);
+module.exports = new Session();

@@ -1,11 +1,9 @@
-const mongoose = require('mongoose');
+const BaseModel = require('./BaseModel');
 
-const auditLogSchema = new mongoose.Schema({
-  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-  action: { type: String, required: true },
-  details: mongoose.Schema.Types.Mixed,
-  ipAddress: String,
-  status: String
-}, { timestamps: true });
+class AuditLog extends BaseModel {
+  constructor() {
+    super('audit_logs');
+  }
+}
 
-module.exports = mongoose.model('AuditLog', auditLogSchema);
+module.exports = new AuditLog();

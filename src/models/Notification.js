@@ -1,11 +1,9 @@
-const mongoose = require('mongoose');
+const BaseModel = require('./BaseModel');
 
-const notificationSchema = new mongoose.Schema({
-  title: { type: String, required: true },
-  message: { type: String, required: true },
-  target: { type: String, enum: ['ALL', 'USER', 'ROLE'], default: 'ALL' },
-  targetId: String, // userId or role name
-  senderId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }
-}, { timestamps: true });
+class Notification extends BaseModel {
+  constructor() {
+    super('notifications');
+  }
+}
 
-module.exports = mongoose.model('Notification', notificationSchema);
+module.exports = new Notification();

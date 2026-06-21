@@ -1,7 +1,8 @@
 const app = require('./app');
 const http = require('http');
 const { Server } = require('socket.io');
-const mongoose = require('mongoose');
+const { admin } = require('./config/firebase');
+const { connectRedis } = require('./config/redis');
 const logger = require('./utils/logger');
 require('dotenv').config();
 
@@ -13,6 +14,9 @@ const io = new Server(server, {
   }
 });
 
+// Global io for use in controllers
+global.io = io;
+
 // Socket.IO Logic
 require('./sockets')(io);
 
@@ -20,16 +24,17 @@ require('./sockets')(io);
 require('./jobs/license.job');
 
 const PORT = process.env.PORT || 5000;
-const MONGO_URI = process.env.MONGO_URI;
 
-mongoose.connect(MONGO_URI)
-  .then(() => {
-    logger.info('Connected to MongoDB');
-    server.listen(PORT, '0.0.0.0', () => {
-      logger.info(`Server running on port ${PORT}`);
-    });
-  })
-  .catch(err => {
-    logger.error('MongoDB connection error: ' + err.message);
-    process.exit(1);
-  });
+// Start Server
+server.listen(PORT, '0.0.0.0', async () => {
+  logger.info(`Server running on port ${PORT}`);
+
+  // Connect to Redis
+  await connectRedis();
+
+  if (admin.apps.length > 0) {
+    logger.info('Backend is using Firebase Services');
+  } else {
+    logger.error('Firebase not initialized! Check environment variables.');
+  }
+});

@@ -1,9 +1,9 @@
-const mongoose = require('mongoose');
+const BaseModel = require('./BaseModel');
 
-const settingsSchema = new mongoose.Schema({
-  key: { type: String, required: true, unique: true },
-  value: mongoose.Schema.Types.Mixed,
-  description: String
-}, { timestamps: true });
+class Settings extends BaseModel {
+  constructor() {
+    super('settings');
+  }
+}
 
-module.exports = mongoose.model('Settings', settingsSchema);
+module.exports = new Settings();

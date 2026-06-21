@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+const { admin } = require('../config/firebase');
 const os = require('os');
 const { success } = require('../utils/response');
 
@@ -7,7 +7,8 @@ exports.getStatus = (req, res) => {
     uptime: process.uptime(),
     memory: process.memoryUsage(),
     cpu: os.loadavg(),
-    database: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected'
+    database: admin.apps.length > 0 ? 'connected' : 'disconnected',
+    provider: 'firebase'
   });
 };
 
